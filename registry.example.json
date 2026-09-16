@@ -1,0 +1,13 @@
+{
+  "schema": "agent_registry",
+  "host": "127.0.0.1",
+  "port": 8766,
+  "lease": 90,
+  "deadline": 180,
+  "capacity": 2,
+  "maxAttempts": 2,
+  "capabilities": [
+    {"name": "text.normalize", "description": "Normalize text / 文本规范化", "tokenEnv": "NORMALIZE_WORKER_TOKEN"},
+    {"name": "text.summarize", "description": "Combine dependency results / 汇总依赖结果", "tokenEnv": "SUMMARIZE_WORKER_TOKEN"}
+  ]
+}

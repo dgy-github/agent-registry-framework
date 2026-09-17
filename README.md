@@ -4,6 +4,8 @@
 
 [简体中文](README.zh-CN.md) · [Architecture](docs/architecture.en.md) · [设计文档](docs/architecture.zh-CN.md)
 
+[API, configuration and deployment](docs/api.en.md)
+
 This repository extracts the reusable part of a multi-agent commerce system: workers register themselves, a scheduler discovers their capabilities, and a durable PostgreSQL task graph coordinates leased execution. There is no commerce model, prompt, UI, or vendor-specific agent SDK in the core.
 
 ## What it provides
@@ -41,7 +43,11 @@ The example registers two workers and runs a two-node task graph. See `docs/arch
 ## Library API
 
 ```js
-import {Scheduler, Worker, createRegistryServer} from 'agent-registry-framework';
+import {
+  Scheduler,
+  Worker,
+  createRegistryServer,
+} from "agent-registry-framework";
 ```
 
 `Scheduler` persists registration and task state. `Worker` receives a task and calls your `handler(task, {signal})`; the handler must honor cancellation and make external writes idempotent. `createRegistryServer` exposes the operator and worker endpoints. The schema is created by `scheduler.init()` and is owned by this framework.

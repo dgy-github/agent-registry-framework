@@ -1,0 +1,20 @@
+Agent Registry Framework
+
+EN: The scheduler and SQL schema were extracted and adapted from the local
+commerce-multi-agent-demo extension within a commerce-agents source tree.
+The extraction replaces commerce-specific task creation, capability names,
+chat persistence and worker execution with generic contracts. Registration,
+transactional dispatch, leases, attempt fencing, quotas and shared facts
+retain their original implementation lineage. New HTTP, worker and validation
+modules were written for this extraction. No Anthropic model SDK code is bundled.
+
+中文：调度器及 SQL 表结构提炼自 commerce-agents 源码树中的本地
+commerce-multi-agent-demo 扩展。此次提炼将电商任务生成、固定能力、聊天存储和
+业务执行替换为通用契约，保留注册、事务派发、租约、尝试隔离、配额及共享事实的
+实现来源。HTTP、Worker 和校验模块为本次提炼编写，未打包 Anthropic 模型 SDK 代码。
+
+The containing source tree uses Apache-2.0; the local demo package declared ISC.
+Apache-2.0 is the license for this distribution; this notice records provenance
+and does not assert ownership of third-party code.
+来源主源码树采用 Apache-2.0，本地示例包声明 ISC。本分发采用 Apache-2.0；
+此文件记录来源，不主张对第三方代码的所有权。

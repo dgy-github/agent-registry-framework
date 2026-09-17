@@ -4,6 +4,8 @@
 
 [English](README.md) · [中文架构设计](docs/architecture.zh-CN.md) · [English architecture](docs/architecture.en.md)
 
+[API、配置及部署说明](docs/api.zh-CN.md)
+
 本仓库从多智能体电商系统中提炼出与业务无关的部分：Worker 主动注册，调度中心发现能力，PostgreSQL 中的持久化任务图负责租约执行。核心不包含电商模型、提示词、页面或特定厂商 SDK。
 
 ## 提供什么
@@ -41,7 +43,11 @@ REGISTRY_OPERATOR_TOKEN=... NORMALIZE_WORKER_TOKEN=... SUMMARIZE_WORKER_TOKEN=..
 ## 库 API
 
 ```js
-import {Scheduler, Worker, createRegistryServer} from 'agent-registry-framework';
+import {
+  Scheduler,
+  Worker,
+  createRegistryServer,
+} from "agent-registry-framework";
 ```
 
 `Scheduler` 保存注册和任务状态；`Worker` 调用你提供的 `handler(task, {signal})`，处理函数必须响应取消且保证外部写入幂等；`createRegistryServer` 提供管理端和 Worker 接口。`scheduler.init()` 创建并管理框架自己的数据库表。

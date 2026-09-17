@@ -4,8 +4,18 @@
   "description": "Domain-neutral agent registration, leased execution and durable task graphs",
   "type": "module",
   "main": "src/index.mjs",
-  "exports": { ".": "./src/index.mjs" },
-  "files": ["src", "docs", "examples", "README.md", "README.zh-CN.md", "NOTICE"],
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "registry.example.json",
+    "src",
+    "docs",
+    "examples",
+    "README.md",
+    "README.zh-CN.md",
+    "NOTICE"
+  ],
   "scripts": {
     "start": "node src/cli.mjs",
     "demo": "node examples/workflow.mjs",
@@ -14,9 +24,18 @@
     "format": "prettier --write src test examples *.json *.md docs .github",
     "format:check": "prettier --check src test examples *.json *.md docs .github"
   },
-  "engines": {"node": ">=22"},
+  "engines": {
+    "node": ">=22"
+  },
   "license": "Apache-2.0",
-  "repository": {"type": "git", "url": "https://github.com/dgy-github/agent-registry-framework.git"},
-  "dependencies": {"pg": "^8.23.0"},
-  "devDependencies": {"prettier": "^3.6.2"}
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dgy-github/agent-registry-framework.git"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }

@@ -11,7 +11,7 @@ The framework has four layers:
 
 ## Lifecycle
 
-`register → claim → heartbeat → result` is the normal lifecycle. A claim creates an attempt and binds a task to `agent_id`, `attempt_id`, and `call_id`. The scheduler accepts a result only while all three bindings still describe the current running attempt. A timeout or cancellation marks the attempt finished, retains the execution slot until acknowledgement or lease reaping, and prevents a late result from overwriting newer state.
+`register → claim → heartbeat → result` is the normal lifecycle. A claim creates an attempt and binds a task to `agent_id`, `attempt_id`, and `call_id`. The scheduler accepts a result only while these bindings describe the current running attempt. Cancellation marks the task cancelled but retains its running attempt and execution slot until acknowledgement or lease expiry. Lease expiry finishes the attempt and releases the slot. Both paths prevent late receipts from overwriting newer state.
 
 ## Task graphs
 

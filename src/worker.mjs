@@ -51,16 +51,32 @@ export class Worker {
       throw Error(`Worker endpoint returned ${response.status}`);
     return response.json();
   }
+  async review(
+    taskId,
+    version,
+    verified,
+    note,
+    { rework = false, confidence = null, ttlSeconds = null } = {},
+  ) {
+    return this.api("review", {
+      task_id: taskId,
+      version,
+      verified,
+      note,
+      rework,
+      ...(confidence !== null ? { confidence } : {}),
+      ...(ttlSeconds !== null ? { ttl_seconds: ttlSeconds } : {}),
+    });
+  }
   async execute(task, signal) {
     const controller = new AbortController();
     const abort = () => controller.abort();
     signal?.addEventListener("abort", abort, { once: true });
     if (signal?.aborted) controller.abort();
+    const remaining = Date.parse(task.deadline) - Date.now();
+    if (!Number.isFinite(remaining) || remaining <= 0) abort();
     const pulseStop = new AbortController();
-    const deadline = setTimeout(
-      abort,
-      Math.max(1, Date.parse(task.deadline) - Date.now()),
-    );
+    const deadline = setTimeout(abort, Math.max(1, remaining || 1));
     const pulse = (async () => {
       while (!pulseStop.signal.aborted) {
         try {
@@ -81,20 +97,33 @@ export class Worker {
       }
     })();
     try {
-      const result = await this.handler(task, { signal: controller.signal });
-      if (result === undefined) throw Error("Handler must return JSON");
-      await this.api("result", {
-        call_id: task.call_id,
-        result,
-        error: controller.signal.aborted ? "cancelled" : null,
-      });
-    } catch {
-      // EN: No premature slot release while a handler is still running.
-      // 中文：必须等业务函数停止后才确认结束，避免并发额度被提前释放。
-      await this.api("result", {
-        call_id: task.call_id,
-        error: "handler_failed",
-      }).catch(() => {});
+      let receipt;
+      let usage;
+      try {
+        controller.signal.throwIfAborted();
+        const result = await this.handler(task, {
+          signal: controller.signal,
+          reportUsage: (u) => {
+            usage = u;
+          },
+          review: (taskId, version, verified, note, opts) =>
+            this.review(taskId, version, verified, note, opts),
+        });
+        // Validate and detach before transport so serialization errors are handler failures.
+        const encoded = JSON.stringify(result);
+        if (encoded === undefined) throw Error("Handler must return JSON");
+        receipt = controller.signal.aborted
+          ? { error: "cancelled" }
+          : { result: JSON.parse(encoded), error: null };
+      } catch {
+        receipt = {
+          error: controller.signal.aborted ? "cancelled" : "handler_failed",
+        };
+      }
+      if (usage !== undefined) receipt.usage = usage;
+      // A lost response does not mean execution failed. Let run() re-register;
+      // the scheduler keeps ownership until receipt acceptance or lease expiry.
+      await this.api("result", { call_id: task.call_id, ...receipt });
     } finally {
       pulseStop.abort();
       clearTimeout(deadline);

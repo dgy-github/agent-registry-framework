@@ -16,15 +16,19 @@ const workers = [
     url,
     token: process.env.NORMALIZE_WORKER_TOKEN,
     capability: "text.normalize",
-    handler: async (task) => ({ text: task.input.text.trim().toUpperCase() }),
+    handler: async (task, { reportUsage }) => {
+      reportUsage({ input_tokens: 12, output_tokens: 6, cost_usd: 0.0001 });
+      return { text: task.input.text.trim().toUpperCase() };
+    },
   }),
   new Worker({
     url,
     token: process.env.SUMMARIZE_WORKER_TOKEN,
     capability: "text.summarize",
-    handler: async (task) => ({
-      text: task.facts.map((f) => f.value.text).join(" | "),
-    }),
+    handler: async (task, { reportUsage }) => {
+      reportUsage({ input_tokens: 18, output_tokens: 8, cost_usd: 0.0002 });
+      return { text: task.facts.map((f) => f.value.text).join(" | ") };
+    },
   }),
 ];
 async function api(route, body) {
@@ -45,26 +49,42 @@ try {
   const { ids } = await api("/api/tasks", {
     request_id: randomUUID(),
     plan: {
+      budget: { max_tokens: 1000, max_cost_usd: 0.05 },
       tasks: [
         {
           id: "normalize",
           capability: "text.normalize",
+          fact_key: "demo.normalized.greeting",
+          fact_ttl_seconds: 3600,
           input: { text: "  hello agents  " },
         },
         {
           id: "summary",
           capability: "text.summarize",
           dependencies: ["normalize"],
+          require_verified_facts: true,
         },
       ],
     },
   });
+  let reviewedNormalize = false;
   let complete = false;
   for (let i = 0; i < 60; i++) {
     const state = await api("/api/state");
     const tasks = state.tasks.filter((t) => ids.includes(t.task_id));
     if (tasks.some((t) => ["failed", "cancelled"].includes(t.status)))
       throw Error("Workflow failed");
+    const normTask = tasks.find((t) => t.capability === "text.normalize");
+    if (normTask?.status === "completed" && !reviewedNormalize) {
+      await api("/api/facts/review", {
+        task_id: normTask.task_id,
+        version: normTask.attempts,
+        verified: true,
+        confidence: 0.99,
+        note: "verified normalized output",
+      });
+      reviewedNormalize = true;
+    }
     if (
       tasks.length === ids.length &&
       tasks.every((t) => t.status === "completed")

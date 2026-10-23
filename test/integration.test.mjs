@@ -65,9 +65,28 @@ test(
         owner = t.agent_id;
       assert.equal(t.status, "running");
       assert.ok(t.attempt_id);
+      assert.equal(t.attempts, t.attempt);
+      assert.ok(t.lease_until);
+      assert.ok(new Date(t.lease_until) <= new Date(t.deadline));
+      // Force a distinguishable renewal without relying on wall-clock sleeps.
+      await a.pool.query(
+        "UPDATE agent_attempts SET lease_until=now()+interval '10 seconds' WHERE call_id=$1",
+        [t.call_id],
+      );
       assert.equal(
         (await a.heartbeat(owner, "research", t.call_id)).valid,
         true,
+      );
+      const renewed = await a.snapshot();
+      const renewedTask = renewed.tasks.find(
+        (row) => row.task_id === t.task_id,
+      );
+      const renewedAttempt = renewed.attempts.find(
+        (row) => row.call_id === t.call_id,
+      );
+      assert.equal(
+        renewedTask.lease_until.getTime(),
+        renewedAttempt.lease_until.getTime(),
       );
       assert.equal(
         (

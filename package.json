@@ -19,8 +19,9 @@
   "scripts": {
     "start": "node src/cli.mjs",
     "demo": "node examples/workflow.mjs",
+    "demo:ui": "node examples/ui-demo.mjs",
     "test": "node --test test/*.test.mjs",
-    "test:integration": "node --test test/integration.test.mjs",
+    "test:integration": "node --test test/*integration.test.mjs",
     "format": "prettier --write src test examples *.json *.md docs .github",
     "format:check": "prettier --check src test examples *.json *.md docs .github"
   },

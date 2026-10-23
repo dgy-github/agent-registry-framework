@@ -6,16 +6,20 @@
   "deadline": 180,
   "capacity": 2,
   "maxAttempts": 2,
+  "maxConsecutiveFailures": 3,
   "capabilities": [
     {
       "name": "text.normalize",
       "description": "Normalize text / 文本规范化",
-      "tokenEnv": "NORMALIZE_WORKER_TOKEN"
+      "tokenEnv": "NORMALIZE_WORKER_TOKEN",
+      "required_input_fields": ["text"],
+      "required_output_fields": ["text"]
     },
     {
       "name": "text.summarize",
       "description": "Combine dependency results / 汇总依赖结果",
-      "tokenEnv": "SUMMARIZE_WORKER_TOKEN"
+      "tokenEnv": "SUMMARIZE_WORKER_TOKEN",
+      "required_output_fields": ["text"]
     }
   ]
 }

@@ -49,6 +49,8 @@ All bodies are JSON, maximum 1 MB, `Content-Type: application/json`. Successful 
 
 ### `GET /` and `GET /ui` (Operator Web Console)
 
+> Security: this page is public and never embeds a credential. The former `uiDefaultToken` option of `createRegistryServer` is deprecated and ignored; pass the token via the `#token=` fragment (not sent to the server) or the token input.
+
 Built-in zero-dependency bilingual (中文/EN) Operator Console served directly by the registry server. Supports browser authentication via `sessionStorage` (or `#token=<operatorToken>` hash fragment auto-login) and provides:
 
 - **Interactive SVG DAG & Trace Explorer**: Inspect request topologies, task states, priorities, and `trace_id`, with one-click task cancellation and dynamic subgraph expansion (`expand`).

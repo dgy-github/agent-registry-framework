@@ -1,6 +1,17 @@
 /** EN: Zero-dependency bilingual Operator Console UI served directly by the registry HTTP server.
  * 中文：由注册中心 HTTP 服务直接提供的零依赖中英双语管理控制台界面。
  */
+/** EN: Serialize a value for safe embedding inside an inline <script> block.
+ * 中文：安全地把值序列化后嵌入内联 <script>，防止 </script> 截断与注入。 */
+export function safeJsonForScript(value) {
+  return (JSON.stringify(value) ?? "null")
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function renderConsoleHtml({ defaultToken = "" } = {}) {
   return `<!doctype html>
 <html lang="zh-CN">
@@ -643,7 +654,7 @@ export function renderConsoleHtml({ defaultToken = "" } = {}) {
       history.replaceState(null, "", location.pathname);
     }
     const state = {
-      token: sessionStorage.getItem("ar_operator_token") || ${JSON.stringify(defaultToken)},
+      token: sessionStorage.getItem("ar_operator_token") || ${safeJsonForScript(String(defaultToken ?? ""))},
       lang: "zh",
       snapshot: null,
       telemetry: null,
@@ -669,7 +680,8 @@ export function renderConsoleHtml({ defaultToken = "" } = {}) {
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
     }
 
     async function api(path, method = "GET", bodyObj = null) {

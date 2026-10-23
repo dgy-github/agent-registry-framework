@@ -74,7 +74,6 @@ await scheduler.init();
 
 const server = createRegistryServer(scheduler, {
   operatorToken,
-  uiDefaultToken: operatorToken,
   workerTokens: {
     "text.normalize": normalizeToken,
     "text.summarize": summarizeToken,
@@ -305,7 +304,8 @@ const tickTimer = setInterval(() => {
   scheduler.tick().catch(() => {});
 }, 2000);
 
-const consoleUrl = `${baseUrl}/`;
+// The URL fragment is never sent to the server; the console stores it in sessionStorage.
+const consoleUrl = `${baseUrl}/#token=${encodeURIComponent(operatorToken)}`;
 console.log("\n==============================================================");
 console.log("🚀 Agent Registry Console UI is live!");
 console.log(`👉 Open in browser (Auto-Connected): ${consoleUrl}`);

@@ -33,7 +33,9 @@ async function body(request) {
  */
 export function createRegistryServer(
   scheduler,
-  { operatorToken, workerTokens, planner = new Planner(), uiDefaultToken = "" },
+  // uiDefaultToken is deprecated and ignored: the console page is served to anonymous
+  // clients, so it must never embed a credential. Use "/#token=..." (hash is not sent).
+  { operatorToken, workerTokens, planner = new Planner() },
 ) {
   if (
     typeof operatorToken !== "string" ||
@@ -65,9 +67,7 @@ export function createRegistryServer(
           "Content-Type": "text/html; charset=utf-8",
           "Cache-Control": "no-store",
         });
-        return response.end(
-          renderConsoleHtml({ defaultToken: uiDefaultToken }),
-        );
+        return response.end(renderConsoleHtml());
       }
       if (route?.startsWith("/internal/")) {
         if (request.method !== "POST")

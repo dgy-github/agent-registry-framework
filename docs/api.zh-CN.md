@@ -48,6 +48,8 @@ PowerShell 用 `$env:DATABASE_URL = 'postgresql://...'` 设置变量，三个 To
 
 ### `GET /` 与 `GET /ui`（管理端可视化控制台）
 
+> 安全说明：该页面无需认证即可访问，因此绝不内嵌任何凭据。`createRegistryServer` 原有的 `uiDefaultToken` 选项已废弃并被忽略；请通过 `#token=` 哈希片段（不会发送到服务器）或页面中的 Token 输入框登录。
+
 直接由注册中心内置提供的零依赖中英双语可视化控制平面（Operator Console）。支持通过浏览器输入管理端凭据（或通过 `#token=<管理凭据>` 本地哈希自动登录），提供：
 
 - **交互式 SVG DAG 任务拓扑图**：按请求查看拓扑层级、任务状态、优先级、`trace_id`，支持一键取消任务或在任意节点下动态扩展子任务图（`expand`）。
